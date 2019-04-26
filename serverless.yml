@@ -1,0 +1,50 @@
+service: websockets
+
+provider:
+  name: aws
+  runtime: dotnetcore2.1
+  region: ap-southeast-2
+
+  logRetentionInDays: 90
+
+  environment:
+    DynamoChatTable:
+      Ref: Chat
+
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "dynamodb:*"
+      Resource:
+        Fn::GetAtt: [Chat, Arn]
+
+package:
+  artifact: bin/release/netcoreapp2.1/deploy-package.zip
+
+functions:
+  connect:
+    handler: CsharpHandlers::App.Connect::FunctionHandler
+    events:
+        - websocket:
+            route: $connect
+  
+  disconnect:
+    handler: CsharpHandlers::App.Disconnect::FunctionHandler
+    events:
+      - websocket:
+          route: $disconnect  
+  
+  default:
+    handler: CsharpHandlers::App.Default::FunctionHandler
+    events:
+      - websocket:
+          route: $default
+  
+  echo:
+    handler: CsharpHandlers::App.Echo::FunctionHandler
+    events:
+      - websocket:
+          route: echo
+
+resources:
+  - ${file(dynamodb.yml)}

@@ -1,0 +1,19 @@
+Resources:
+  Chat:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: ${self:service}-Chat-${opt:stage, 'dev'}
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        -
+          AttributeName: "ConnectionId"
+          AttributeType: "S"
+      KeySchema:
+        -
+          AttributeName: "ConnectionId"
+          KeyType: "HASH"
+
+Outputs:
+  Chat:
+    Value:
+      Ref: Chat
